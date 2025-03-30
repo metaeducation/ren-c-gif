@@ -7,11 +7,15 @@
 //
 //=////////////////////////////////////////////////////////////////////////=//
 //
+// Copyright (C) 2003 GraphicsMagick Group
+// Copyright (C) 2002 ImageMagick Studio
+// Copyright 1991-1999 E. I. du Pont de Nemours and Company
+//
 // Copyright 2012 REBOL Technologies
-// Copyright 2012-2017 Ren-C Open Source Contributors
+// Copyright 2012-2025 Ren-C Open Source Contributors
 // REBOL is a trademark of REBOL Technologies
 //
-// See README.md and CREDITS.md for more information.
+// See README.md for more information.
 //
 // Licensed under the Lesser GPL, Version 3.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,11 +25,8 @@
 //
 //=////////////////////////////////////////////////////////////////////////=//
 //
-// This is an optional part of R3. This file can be replaced by
-// library function calls into an updated implementation.
+// See README.md for notes about this extension.
 //
-
-#include "sys-core.h"
 
 #include "tmp-mod-gif.h"
 
@@ -216,18 +217,18 @@ static bool Has_Valid_GIF_Header(const Byte* data, uint32_t len) {
 //
 //  identify-gif?: native [
 //
-//  {Codec for identifying BINARY! data for a GIF}
+//  "Codec for identifying BINARY! data for a GIF"
 //
-//      return: [logic!]
-//      data [binary!]
+//      return: [logic?]
+//      data [blob!]
 //  ]
 //
-DECLARE_NATIVE(identify_gif_q)
+DECLARE_NATIVE(IDENTIFY_GIF_Q)
 {
-    GIF_INCLUDE_PARAMS_OF_IDENTIFY_GIF_Q;
+    INCLUDE_PARAMS_OF_IDENTIFY_GIF_Q;
 
     Size size;
-    const Byte* data = VAL_BINARY_SIZE_AT(&size, ARG(data));
+    const Byte* data = Cell_Bytes_At(&size, ARG(DATA));
 
     // Assume signature matching is good enough (will get a fail() on
     // decode if it's a false positive).
@@ -239,19 +240,19 @@ DECLARE_NATIVE(identify_gif_q)
 //
 //  decode-gif: native [
 //
-//  {Codec for decoding BINARY! data for a GIF}
+//  "Codec for decoding BINARY! data for a GIF"
 //
-//      return: [image! block!]
-//          {Single image or BLOCK! of images if multiple frames (animated)}
-//      data [binary!]
+//      return: [fundamental? block!]  ; IMAGE! not currently exposed
+//          "Single image or BLOCK! of images if multiple frames (animated)"
+//      data [blob!]
 //  ]
 //
-DECLARE_NATIVE(decode_gif)
+DECLARE_NATIVE(DECODE_GIF)
 {
-    GIF_INCLUDE_PARAMS_OF_DECODE_GIF;
+    INCLUDE_PARAMS_OF_DECODE_GIF;
 
     Size size;
-    const Byte* data = VAL_BINARY_SIZE_AT(&size, ARG(data));
+    const Byte* data = Cell_Bytes_At(&size, ARG(DATA));
 
     if (not Has_Valid_GIF_Header(data, size))
         fail (Error_Bad_Media_Raw());
@@ -279,7 +280,7 @@ DECLARE_NATIVE(decode_gif)
     cp += 13;
     transparency_index = -1;
 
-    REBVAL *frames = rebValue("copy []");
+    RebolValue* frames = rebValue("copy []");
 
     for (;;) {
         if (cp >= end) break;
@@ -341,16 +342,16 @@ DECLARE_NATIVE(decode_gif)
             ///Chroma_Key_Alpha(Temp_Value, (uint32_t)(p[2]|(p[1]<<8)|(p[0]<<16)), BLIT_MODE_COLOR);
         }
 
-        REBVAL *binary = rebRepossess(dp, (w * h) * 4);
+        RebolValue* blob = rebRepossess(dp, (w * h) * 4);
 
         rebElide(
-            "append", frames, "make image! compose [",
+            "append", frames, "make-image compose [",
                 "(to pair! [", rebI(w), rebI(h), "])",
-                binary,
+                blob,
             "]"
         );
 
-        rebRelease(binary);
+        rebRelease(blob);
     }
 
     // If 0 images, raise an error
@@ -359,8 +360,8 @@ DECLARE_NATIVE(decode_gif)
     //
     // !!! Should formats that can act as containers always return a BLOCK!?
     //
-    REBVAL *result = rebValue("case [",
-        "empty?", frames, "[fail {No frames found in GIF}]",
+    RebolValue* result = rebValue("case [",
+        "empty?", frames, "[fail -{No frames found in GIF}-]",
         "1 = length of", frames, "[first", frames, "]",
     "] else [", frames, "]");
 
