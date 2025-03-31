@@ -30,6 +30,14 @@
 
 #include "tmp-mod-gif.h"
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <assert.h>
+
+#include "c-enhanced.h"
+
+typedef unsigned char Byte;
+
 #define MAX_STACK_SIZE  4096
 #define NULL_CODE       (-1)
 #define BitSet(byte,bit)  (((byte) & (bit)) == (bit))
@@ -224,16 +232,19 @@ static bool Has_Valid_GIF_Header(const Byte* data, uint32_t len) {
 //  ]
 //
 DECLARE_NATIVE(IDENTIFY_GIF_Q)
+//
+// 1. A signature match doesn't mean that the decode will succeed, it just
+//    means it's probably *supposed* to be a GIF.  The decoding will fail
+//    if it's not valid.
 {
     INCLUDE_PARAMS_OF_IDENTIFY_GIF_Q;
 
-    Size size;
-    const Byte* data = Cell_Bytes_At(&size, ARG(DATA));
+    size_t size;
+    const Byte* data = rebLockBytes(&size, "data");
 
-    // Assume signature matching is good enough (will get a fail() on
-    // decode if it's a false positive).
-    //
-    return Init_Logic(OUT, Has_Valid_GIF_Header(data, size));
+    bool has_valid_header = Has_Valid_GIF_Header(data, size);
+
+    return rebLogic(has_valid_header);  // assume signature match is enough [1]
 }
 
 
@@ -245,17 +256,20 @@ DECLARE_NATIVE(IDENTIFY_GIF_Q)
 //      return: [fundamental? block!]  ; IMAGE! not currently exposed
 //          "Single image or BLOCK! of images if multiple frames (animated)"
 //      data [blob!]
+//      <local> frames
 //  ]
 //
 DECLARE_NATIVE(DECODE_GIF)
 {
     INCLUDE_PARAMS_OF_DECODE_GIF;
 
-    Size size;
-    const Byte* data = Cell_Bytes_At(&size, ARG(DATA));
+    size_t size;
+    const Byte* data = rebLockBytes(&size, "data");
 
     if (not Has_Valid_GIF_Header(data, size))
-        fail (Error_Bad_Media_Raw());
+        return "fail -{Invalid GIF header}-";  // auto-unlocks data on fail
+
+    rebElide("frames: copy []");
 
     int32_t  w, h;
     int32_t  transparency_index;
@@ -279,8 +293,6 @@ DECLARE_NATIVE(DECODE_GIF)
     }
     cp += 13;
     transparency_index = -1;
-
-    RebolValue* frames = rebValue("copy []");
 
     for (;;) {
         if (cp >= end) break;
@@ -345,7 +357,7 @@ DECLARE_NATIVE(DECODE_GIF)
         RebolValue* blob = rebRepossess(dp, (w * h) * 4);
 
         rebElide(
-            "append", frames, "make-image compose [",
+            "append frames make-image compose [",
                 "(to pair! [", rebI(w), rebI(h), "])",
                 blob,
             "]"
@@ -354,18 +366,23 @@ DECLARE_NATIVE(DECODE_GIF)
         rebRelease(blob);
     }
 
+    rebUnlockBytes(data);
+
+  //=//// RETURN THE DECODED RESULTS //////////////////////////////////////=//
+
     // If 0 images, raise an error
     // If 1 image, return as a single value
     // If multiple images, return in a BLOCK!
     //
-    // !!! Should formats that can act as containers always return a BLOCK!?
-    //
-    RebolValue* result = rebValue("case [",
-        "empty?", frames, "[fail -{No frames found in GIF}-]",
-        "1 = length of", frames, "[first", frames, "]",
-    "] else [", frames, "]");
+    // 1. It might be that if you want to tolerate multiple images, you
+    //    need to explicitly ask for that in the decode...and if you do,
+    //    then you get a block even if it's only one frame.  But if you
+    //    don't you get a single image, and an error if it's more (or
+    //    just the first one?)
 
-    rebRelease(frames);
+    return rebDelegate(
+        "if empty? frames [fail -{no frames found in GIF}-]"
 
-    return result;
+        "either 1 = length of frames [frames.1] [frames]"  // always block? [1]
+    );
 }
