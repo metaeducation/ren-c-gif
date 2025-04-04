@@ -28,15 +28,18 @@
 // See README.md for notes about this extension.
 //
 
-#include "tmp-mod-gif.h"
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
 
 #include "c-enhanced.h"
 
+#include "rebol.h"
+#include "tmp-mod-gif.h"
+
+
 typedef unsigned char Byte;
+
 
 #define MAX_STACK_SIZE  4096
 #define NULL_CODE       (-1)
@@ -357,7 +360,7 @@ DECLARE_NATIVE(DECODE_GIF)
         RebolValue* blob = rebRepossess(dp, (w * h) * 4);
 
         rebElide(
-            "append frames make-image compose [",
+            "append frames make image! compose [",
                 "(to pair! [", rebI(w), rebI(h), "])",
                 blob,
             "]"
