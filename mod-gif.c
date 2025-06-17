@@ -270,7 +270,7 @@ DECLARE_NATIVE(DECODE_GIF)
     const Byte* data = rebLockBytes(&size, "data");
 
     if (not Has_Valid_GIF_Header(data, size))
-        return "fail -{Invalid GIF header}-";  // auto-unlocks data on fail
+        return "panic -[Invalid GIF header]-";  // auto-unlocks data on panic
 
     rebElide("frames: copy []");
 
@@ -373,7 +373,7 @@ DECLARE_NATIVE(DECODE_GIF)
 
   //=//// RETURN THE DECODED RESULTS //////////////////////////////////////=//
 
-    // If 0 images, raise an error
+    // If 0 images, return an error
     // If 1 image, return as a single value
     // If multiple images, return in a BLOCK!
     //
@@ -384,7 +384,7 @@ DECLARE_NATIVE(DECODE_GIF)
     //    just the first one?)
 
     return rebDelegate(
-        "if empty? frames [fail -{no frames found in GIF}-]"
+        "if empty? frames [panic -[no frames found in GIF]-]"
 
         "either 1 = length of frames [frames.1] [frames]"  // always block? [1]
     );
