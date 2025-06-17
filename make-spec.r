@@ -5,4 +5,4 @@ Rebol [
 
 use-librebol: 'yes
 
-sources: %mod-gif.c
+sources: [mod-gif.c]
