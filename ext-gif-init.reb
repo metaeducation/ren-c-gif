@@ -9,4 +9,4 @@ Rebol [
 sys.util/register-codec 'gif %.gif
     identify-gif?/
     decode-gif/
-    null  ; currently no GIF encoder
+    void  ; currently no GIF encoder
