@@ -33,7 +33,7 @@
 #include <assert.h>
 
 #include "needful/needful.h"
-#define cast  v_cast
+#define cast  h_cast
 
 #include "rebol.h"
 #include "tmp-mod-gif.h"
