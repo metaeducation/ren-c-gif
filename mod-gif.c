@@ -33,7 +33,7 @@
 #include <assert.h>
 
 #include "needful/needful.h"
-#define cast  h_cast
+#include "c-extras.h"  // for EXTERN_C, nullptr, etc.
 
 #include "rebol.h"
 #include "tmp-mod-gif.h"
@@ -216,10 +216,10 @@ static bool Has_Valid_GIF_Header(const Byte* data, uint32_t len) {
     if (len < 5)
         return false;
 
-    if (strncmp(cs_cast(data), "GIF87", 5) == 0)
+    if (strncmp(s_cast(data), "GIF87", 5) == 0)
         return true;
 
-    if (strncmp(cs_cast(data), "GIF89", 5) == 0)
+    if (strncmp(s_cast(data), "GIF89", 5) == 0)
         return true;
 
     return false;
