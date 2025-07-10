@@ -1,4 +1,4 @@
-; %gif.test.reb
+; %gif.test.r
 
 (image? decode 'gif read %../fixtures/rebol-logo.gif)
 
