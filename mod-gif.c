@@ -260,7 +260,7 @@ DECLARE_NATIVE(IDENTIFY_GIF_Q)
 //      return: [fundamental? block!]  ; IMAGE! not currently exposed
 //          "Single image or BLOCK! of images if multiple frames (animated)"
 //      data [blob!]
-//      <local> frames
+//      {frames}
 //  ]
 //
 DECLARE_NATIVE(DECODE_GIF)
