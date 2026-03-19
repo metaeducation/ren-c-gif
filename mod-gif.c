@@ -231,7 +231,7 @@ static bool Has_Valid_GIF_Header(const Byte* data, uint32_t len) {
 //
 //  "Codec for identifying BINARY! data for a GIF"
 //
-//      return: [logic?]
+//      return: [logic!]
 //      data [blob!]
 //  ]
 //
@@ -328,7 +328,7 @@ DECLARE_NATIVE(DECODE_GIF)
 
         if (c != ',') continue;
 
-        interlaced = did (cp[8] & 0x40);
+        interlaced = logical (cp[8] & 0x40);
         local_colormap = cp[8] & 0x80;
 
         w = LSBFirstOrder(cp[4],cp[5]);
