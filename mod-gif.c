@@ -227,7 +227,7 @@ static bool Has_Valid_GIF_Header(const Byte* data, uint32_t len) {
 
 
 //
-//  identify-gif?: native [
+//  /identify-gif?: native [
 //
 //  "Codec for identifying BINARY! data for a GIF"
 //
@@ -253,7 +253,7 @@ DECLARE_NATIVE(IDENTIFY_GIF_Q)
 
 
 //
-//  decode-gif: native [
+//  /decode-gif: native [
 //
 //  "Codec for decoding BINARY! data for a GIF"
 //
