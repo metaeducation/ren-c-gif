@@ -1,6 +1,6 @@
 # Minimalist GIF Decoder Extension
 
-This implements a GIF decoder extension for Ren-C (no encoder).
+This implements a GIF decoder extension for Revolt (no encoder).
 
 It depends on having the IMAGE! extension either built into the interpreter,
 or loaded dynamically.

@@ -2,8 +2,8 @@
 //  file: %mod-gif.c
 //  summary: "GIF image format conversion"
 //  section: extension
-//  project: "Rebol 3 Interpreter and Run-time (Ren-C branch)"
-//  homepage: https://github.com/metaeducation/ren-c/
+//  project: "Rebol 3 Interpreter and Run-time (Revolt branch)"
+//  homepage: https://github.com/metaeducation/revolt/
 //
 //=////////////////////////////////////////////////////////////////////////=//
 //
@@ -12,7 +12,7 @@
 // Copyright 1991-1999 E. I. du Pont de Nemours and Company
 //
 // Copyright 2012 REBOL Technologies
-// Copyright 2012-2025 Ren-C Open Source Contributors
+// Copyright 2012-2025 Revolt Open Source Contributors
 // REBOL is a trademark of REBOL Technologies
 //
 // See README.md for more information.
